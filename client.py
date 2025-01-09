@@ -1,4 +1,5 @@
 import subprocess
+from typing import Optional
 
 
 class HelmClient:
@@ -23,7 +24,31 @@ class HelmClient:
         return stdout.rstrip()
 
 
-    def _run(self, args: list[str] | str, *flags: str) -> tuple[str, str]:
+    def pull(self,
+             chart: str,
+             username: Optional[str] = None,
+             password: Optional[str] = None,
+             repo: Optional[str] = None,
+             untardir: Optional[str] = None,
+             untar: bool = True, 
+             *args,
+             **kwargs
+             ):
+        flags = []
+        if username:
+            flags.append(f"--username={username}")
+        if password:
+            flags.append(f"--password={password}")
+        if repo:
+            flags.append(f"--repo={repo}")
+        if untar:
+            flags.append("--untar")
+        if untardir:
+            flags.append(f"--untardir={untardir}")
+
+        stdout, stderr = self._run("pull", chart, flags)
+
+    def _run(self, args: list[str] | str, *flags) -> tuple[str, str]:
         cmd = [self.client_path]
         
         if type(args) is list:
